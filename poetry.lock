@@ -73,6 +73,18 @@ async = ["asgiref (>=3.2)"]
 dotenv = ["python-dotenv"]
 
 [[package]]
+name = "flask-login"
+version = "0.6.2"
+description = "User authentication and session management for Flask."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+Flask = ">=1.0.4"
+Werkzeug = ">=1.0.1"
+
+[[package]]
 name = "flask-migrate"
 version = "4.0.4"
 description = "SQLAlchemy database migrations for Flask applications using Alembic."
@@ -96,6 +108,22 @@ python-versions = ">=3.7"
 [package.dependencies]
 Flask = ">=2.2"
 SQLAlchemy = ">=1.4.18"
+
+[[package]]
+name = "flask-wtf"
+version = "1.1.1"
+description = "Form rendering, validation, and CSRF protection for Flask with WTForms."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+Flask = "*"
+itsdangerous = "*"
+WTForms = "*"
+
+[package.extras]
+email = ["email-validator"]
 
 [[package]]
 name = "greenlet"
@@ -242,10 +270,24 @@ MarkupSafe = ">=2.1.1"
 [package.extras]
 watchdog = ["watchdog"]
 
+[[package]]
+name = "wtforms"
+version = "3.2.1"
+description = "Form validation and rendering for Python web development."
+category = "main"
+optional = false
+python-versions = ">=3.9"
+
+[package.dependencies]
+markupsafe = "*"
+
+[package.extras]
+email = ["email-validator"]
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "7dd52bf3296beaaa7c2756afcfa060367ca3eaee94a7b373f1ba6ef2c72a8656"
+content-hash = "5751409a4de652948eb782b6da5c9baba90aa8fb294a4a6fa7bd5f4a7e2c9ecf"
 
 [metadata.files]
 alembic = []
@@ -254,8 +296,10 @@ colorama = []
 distlib = []
 filelock = []
 flask = []
+flask-login = []
 flask-migrate = []
 flask-sqlalchemy = []
+flask-wtf = []
 greenlet = []
 itsdangerous = []
 jinja2 = []
@@ -266,3 +310,4 @@ sqlalchemy = []
 typing-extensions = []
 virtualenv = []
 werkzeug = []
+wtforms = []
