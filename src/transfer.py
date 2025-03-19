@@ -1,6 +1,6 @@
 import hashlib
 
-from src import db
+from src import config, db
 from src.models import Block, Transaction
 from src.utils import blockchain_util
 
@@ -46,6 +46,10 @@ class Transfer:
                 "amount": float(self.amount),
             }
         )
+
+        if self.send_blockchain_addr == config.BLOCKCHAIN_NETWORK:
+            self.commit_transaction()
+            return True
 
         is_verified = self.verify_transaction_signature(
             self.send_public_key,

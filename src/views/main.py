@@ -1,9 +1,12 @@
+import threading
 from flask import (
     Blueprint,
     jsonify,
     request,
     render_template,
 )
+from src import config
+from src.mining import Mine
 from src.transfer import Transfer
 from src.utils.blockchain_util import calculate_total_amount, get_blockchain
 
@@ -12,7 +15,7 @@ bp = Blueprint("main", __name__, url_prefix="/")
 
 @bp.route("/", methods=["GET"])
 def home():
-    return render_template("index.html")
+    return render_template("mining.html")
 
 
 @bp.route("/get-chain", methods=["GET"])
@@ -56,7 +59,7 @@ def transactions():
 def coin_amount():
     """코인 갯수를 계산하여 json 리턴"""
     json_data = request.json
-    
+
     blockchain_addr = json_data["blockchain_addr"]
 
     if not blockchain_addr:
@@ -71,7 +74,62 @@ def coin_amount():
         )
     return (
         jsonify(
-            {"status": "succcess", "content": calculate_total_amount(blockchain_addr)}
+            {"status": "success", "content": calculate_total_amount(blockchain_addr)}
         ),
         201,
     )
+
+
+@bp.route("/mining", methods=["GET", "POST"])
+def mining():
+    if request.method == "GET":
+        recv_blockchain_addr = request.args.get("blockchain_addr")
+
+    if request.method == "POST":
+        json_data = request.json
+
+        recv_blockchain_addr = json_data["blockchain_addr"]
+
+    mine = Mine()
+    mine.difficulty
+
+    mining_success, _ = mine.mining(recv_blockchain_addr)
+
+    if mining_success:
+        return jsonify({"status": "success", "reward": config.MINING_REWARD}), 200
+
+    return jsonify({"status": "fail", "reason": "fail to mining"}), 200
+
+
+@bp.route("/mining/start", methods=["POST"])
+def mining_start():
+    """연속채굴 시작"""
+    json_data = request.json
+    recv_blockcain_addr = json_data["blockchain_addr"]
+    mine = Mine()
+    config.STOP_MINING = False
+    mine.start_mining(recv_blockcain_addr)
+    return jsonify({"status": "success"}), 200
+
+
+@bp.route("/mining/stop", methods=["POST"])
+def mining_stop():
+    """채굴 중단"""
+    json_data = request.json
+    stop_flag = json_data["stop_flag"]
+    if stop_flag == "stop":
+        print("채굴을 중단합니다. 기존 작업을 마무리 하는데 시간이 걸립니다.")
+        print("system flag: config.STOP_MINING -> True")
+        config.STOP_MINING = True
+
+        # 글로벌 변수 config.STOP_MINING 상태를 체크하는 함수
+        def check_stop_mining():
+            while config.STOP_MINING is True:
+                pass
+
+        check_mining_stop_thread = threading.Thread(target=check_stop_mining)
+        check_mining_stop_thread.daemon = True
+        check_mining_stop_thread.start()
+        return jsonify({"status": "stopped"}), 200
+
+    return jsonify({"status": "fail to stop"})
