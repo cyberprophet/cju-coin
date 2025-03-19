@@ -1,4 +1,3 @@
-import collections
 import hashlib
 import json
 
@@ -7,7 +6,7 @@ from src.models import Block, Transaction
 
 
 def sorted_dict_by_key(unsorted_dic: dict):
-    return collections.OrderedDict(sorted(unsorted_dic.items), key=lambda keys: keys[0])
+    return sorted(unsorted_dic.items())
 
 
 def get_blockchain():
@@ -67,3 +66,21 @@ def hash(block: dict):
     sorted_block = json.dumps(block, sort_keys=True)
 
     return hashlib.sha256(sorted_block.encode()).hexdigest()
+
+
+def calculate_total_amount(blockchain_addr: str) -> float:
+    total_amount = 0.0
+
+    chain = get_blockchain()
+
+    for block in chain["chain"]:
+        for transaction in block["transactions"]:
+            value = float(transaction["amount"])
+
+            if blockchain_addr == transaction["recv_blockchain_addr"]:
+                total_amount += value
+
+            if blockchain_addr == transaction["send_blockchain_addr"]:
+                total_amount -= value
+
+    return total_amount
