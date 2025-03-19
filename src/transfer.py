@@ -1,14 +1,22 @@
+import hashlib
+
 from src import db
 from src.models import Block, Transaction
+from src.utils import blockchain_util
+
+from ecdsa import NIST256p, VerifyingKey
 
 
 class Transfer:
     def __init__(
         self,
+        send_public_key: str,
         send_blockchain_addr: str,
         recv_blockchain_addr: str,
         amount: float,
+        signature: str = None,
     ):
+        self.send_public_key = send_public_key
         self.send_blockchain_addr = send_blockchain_addr
         self.recv_blockchain_addr = recv_blockchain_addr
         self.amount = amount
@@ -18,6 +26,7 @@ class Transfer:
             .first()
             .id
         )
+        self.signature = signature
 
     def commit_transaction(self):
         transaction = Transaction(
@@ -30,10 +39,49 @@ class Transfer:
         db.session.commit()
 
     def add_transaction(self) -> bool:
-        is_verified = True
+        transaction = blockchain_util.sorted_dict_by_key(
+            {
+                "send_blockchain_addr": self.send_blockchain_addr,
+                "recv_blockchain_addr": self.recv_blockchain_addr,
+                "amount": float(self.amount),
+            }
+        )
+
+        is_verified = self.verify_transaction_signature(
+            self.send_public_key,
+            self.signature,
+            transaction,
+        )
 
         if is_verified:
             self.commit_transaction()
-            return True
 
-        return False
+        return is_verified
+
+    def verify_transaction_signature(
+        self,
+        send_public_key: str,
+        signature: str,
+        transaction: dict,
+    ) -> bool:
+        sha256 = hashlib.sha256()
+        sha256.update(str(transaction).encode("utf-8"))
+
+        message = sha256.digest()
+
+        signature_byte = bytes().fromhex(signature)
+
+        verifying_key = VerifyingKey.from_string(
+            bytes().fromhex(send_public_key),
+            curve=NIST256p,
+        )
+
+        try:
+            is_verified = verifying_key.verify(
+                signature=signature_byte,
+                data=message,
+            )
+            return is_verified
+
+        except Exception as e:
+            return False

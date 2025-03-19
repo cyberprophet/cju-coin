@@ -11,6 +11,7 @@ Flask = "2.2.3"
 Flask-Migrate = "4.0.4"
 Werkzeug = "2.2.3"
 SQLAlchemy = "2.0.15"
+ecdsa = "0.18.0"
 
 [tool.poetry.dev-dependencies]
 
