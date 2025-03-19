@@ -22,7 +22,9 @@ class BlockChain:
             return False
 
         genesis_block = Block(
-            prev_hash=blockchain_util.hash({}), nonce=0, timestamp=time.time()
+            prev_hash=blockchain_util.hash({}),
+            nonce=0,
+            timestamp=time.time(),
         )
 
         db.session.add(genesis_block)
@@ -33,7 +35,11 @@ class BlockChain:
     def create_block(self, nonce: int, prev_hash: str = None):
         try:
             db.session.add(
-                Block(prev_hash=prev_hash, nonce=nonce, timestamp=time.time())
+                Block(
+                    prev_hash=prev_hash,
+                    nonce=nonce,
+                    timestamp=time.time(),
+                )
             )
             db.session.commit()
 
