@@ -1,4 +1,5 @@
 import os
+
 from src.secret import csrf_token_secret
 
 BASE_DIR = os.path.dirname(__file__)
@@ -13,4 +14,6 @@ BLOCKCHAIN_NETWORK = "BLOCK CHAIN NETWORK"
 
 MINING_DIFFICULTY = 5
 
-MINING_REWORD = 15.0
+MINING_REWARD = 15.0
+
+STOP_MINING = True
