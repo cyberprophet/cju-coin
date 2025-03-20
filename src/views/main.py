@@ -6,6 +6,7 @@ from flask import (
     render_template,
 )
 from src import config
+from src.blockchain import BlockChain
 from src.mining import Mine
 from src.transfer import Transfer
 from src.utils.blockchain_util import calculate_total_amount, get_blockchain
@@ -142,6 +143,13 @@ def resolve_conflict():
     실행순서: 채굴 성공 -> 블록생성 -> 이웃노드에게 resolve_conflict 요청
     """
 
-    # TODO: consensus algorithm 코딩 (resolve_conflict)
+    blockchain = BlockChain()
 
-    return jsonify({"status": "success", "content": "resolve_conflict"})
+    resolve_result = blockchain.resolve_conflicts()
+
+    return jsonify(
+        {
+            "status": "success" if resolve_result else "fail",
+            "content": "resolve_conflict",
+        }
+    )
