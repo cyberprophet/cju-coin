@@ -1,6 +1,7 @@
 import time
-from typing import List
 import requests
+
+from typing import List
 
 from src import config, db
 from src.models import Block, Transaction

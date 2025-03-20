@@ -1,4 +1,5 @@
 import threading
+
 from flask import (
     Blueprint,
     jsonify,
@@ -105,6 +106,7 @@ def mining():
 @bp.route("/mining/start", methods=["POST"])
 def mining_start():
     """연속채굴 시작"""
+    config.MINING_ACTIVE = True
     json_data = request.json
     recv_blockcain_addr = json_data["blockchain_addr"]
     mine = Mine()
@@ -116,6 +118,7 @@ def mining_start():
 @bp.route("/mining/stop", methods=["POST"])
 def mining_stop():
     """채굴 중단"""
+    config.MINING_ACTIVE = False
     json_data = request.json
     stop_flag = json_data["stop_flag"]
     if stop_flag == "stop":
@@ -137,7 +140,7 @@ def mining_stop():
 
 
 @bp.route("/resolve_conflict/", methods=["GET"])
-def resolve_conflict():
+def resolve_conflicts():
     """가장 긴 블록을 찾아서 검증 -> 교체
     호출시기: 개별 노드가 채굴에 성공했을 경우
     실행순서: 채굴 성공 -> 블록생성 -> 이웃노드에게 resolve_conflict 요청
@@ -153,3 +156,11 @@ def resolve_conflict():
             "content": "resolve_conflict",
         }
     )
+
+
+@bp.route("/is_mining_active", methods=["GET"])
+def is_mining_active():
+    if config.MINING_ACTIVE is True:
+        return jsonify({"status": "mining_active"})
+
+    return jsonify({"status": "mining_stop"})

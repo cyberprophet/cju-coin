@@ -30,10 +30,12 @@ IP_CHECK_SERVICE_PROVIDER = "https://checkip.amazonaws.com"
 MY_PUBLIC_IP = requests.get(IP_CHECK_SERVICE_PROVIDER).text.strip()
 
 # Seed Node IP addr
-SEED_NODE_IP = "203.252.240.43"
+SEED_NODE_IP = "127.0.0.1"
 
 # P2P Network Port Number
 PORT_P2P = "22901"
 
 # Mining node Port #
 PORT_MINING = "39456"
+
+MINING_ACTIVE = False

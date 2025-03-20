@@ -24,7 +24,7 @@ class Mine:
 
         prev_hash = blockchain_util.get_prev_hash()
 
-        while blockchain_util.valid_proof(transaction_pool, prev_hash, nonce) is False:
+        while blockchain_util.valid_proof(nonce, prev_hash, transaction_pool) is False:
             nonce += 1
 
         return nonce
