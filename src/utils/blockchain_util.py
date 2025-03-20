@@ -1,9 +1,8 @@
-import hashlib
 import json
+import hashlib
 
-from src.blockchain import BlockChain
-from src.models import Block, Transaction
 from src import config
+from src.models import Block, Transaction
 
 
 def sorted_dict_by_key(unsorted_dic: dict):
@@ -14,6 +13,8 @@ def get_blockchain():
     blockchain_exist = Block.query.all()
 
     if not blockchain_exist:
+        from src.blockchain import BlockChain
+
         blockchain = BlockChain()
         blockchain.create_genesis_block()
 

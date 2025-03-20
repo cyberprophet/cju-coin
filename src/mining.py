@@ -1,4 +1,5 @@
 import threading
+import requests
 
 from typing import List, Tuple
 
@@ -23,7 +24,7 @@ class Mine:
 
         prev_hash = blockchain_util.get_prev_hash()
 
-        while blockchain_util.valid_proof(transaction_pool, prev_hash, nonce) is False:
+        while blockchain_util.valid_proof(nonce, prev_hash, transaction_pool) is False:
             nonce += 1
 
         return nonce
@@ -56,6 +57,47 @@ class Mine:
                 prev_hash=prev_hash,
             )
             print("채굴 성공!")
+
+            url = f"http://{config.MY_PUBLIC_IP}:{config.PORT_P2P}/neighbors"
+
+            response = requests.get(url)
+
+            neighbors_dic = response.json()
+
+            for neighbor in neighbors_dic.values():
+                json_data = {"ip": config.MY_PUBLIC_IP, "port": config.PORT_P2P}
+                try:
+                    url_update = f'http://{neighbor["ip"]}:{config.PORT_P2P}/update'
+
+                    response = requests.get(url_update, params=json_data, timeout=3)
+
+                    if response.status_code != 200:
+                        print(f"Sync neighbor fail on {url_update}")
+
+                except:
+                    print(f"Sync process failed")
+
+            response = requests.get(url)
+
+            neighbors_dic = response.json()
+
+            for neighbor in neighbors_dic.values():
+                ip, port = neighbor["ip"], neighbor["port"]
+
+                if ip == config.MY_PUBLIC_IP and port == config.PORT_P2P:
+                    continue
+
+                neighbor_url = f"http://{ip}:{config.PORT_MINING}/resolve_conflict"
+
+                try:
+                    res_resolve = requests.get(neighbor_url)
+
+                    if res_resolve.status_code == 200:
+                        print("Success resolve conflict")
+
+                except:
+                    print(f"Cannot connect to {neighbor_url}")
+                    return (False, "fail")
 
             return (True, "success")
 
