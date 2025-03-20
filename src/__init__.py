@@ -2,7 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
-from src import config
+from . import config
 
 migrate = Migrate()
 db = SQLAlchemy()
@@ -13,6 +13,8 @@ def create_app():
     app.config.from_object(config)
 
     db.init_app(app)
+
+    app.config["SESSION_TYPE"] = "filesystem"
 
     migrate.init_app(app, db, render_as_batch=True)
 

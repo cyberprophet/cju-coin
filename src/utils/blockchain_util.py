@@ -1,18 +1,20 @@
-import hashlib
 import json
+import hashlib
 
-from src.blockchain import BlockChain
+from src import config
 from src.models import Block, Transaction
 
 
 def sorted_dict_by_key(unsorted_dic: dict):
-    return sorted(unsorted_dic.items())
+    return dict(sorted(unsorted_dic.items()))
 
 
 def get_blockchain():
     blockchain_exist = Block.query.all()
 
     if not blockchain_exist:
+        from src.blockchain import BlockChain
+
         blockchain = BlockChain()
         blockchain.create_genesis_block()
 
@@ -84,3 +86,29 @@ def calculate_total_amount(blockchain_addr: str) -> float:
                 total_amount -= value
 
     return total_amount
+
+
+def get_prev_hash() -> str:
+    prev_hash = (
+        Block.query.filter(Block.timestamp)
+        .order_by(Block.timestamp.desc())
+        .first()
+        .prev_hash
+    )
+    return prev_hash
+
+
+def valid_proof(nonce: int, prev_hash: str, transactions: list) -> bool:
+    guess_block = sorted_dict_by_key(
+        {
+            "transactions": transactions,
+            "nonce": nonce,
+            "prev_hash": prev_hash,
+        }
+    )
+    guess_block_hash = hash(guess_block)
+
+    result = (
+        guess_block_hash[: config.MINING_DIFFICULTY] == "0" * config.MINING_DIFFICULTY
+    )
+    return result
